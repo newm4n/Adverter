@@ -1,4 +1,4 @@
-package logic
+package model
 
 import (
 	"bytes"
@@ -8,11 +8,7 @@ import (
 	"testing"
 )
 
-//base := "C:\\Users\\ferdi\\Workspace\\Golang\\src\\github.com\\newm4n\\Adverter\\sample"
-
 func TestListingDirectory(t *testing.T) {
-
-	//tDir, err := NewTheDirectory("C:\\Users\\ferdi\\Workspace\\Golang\\src\\github.com\\newm4n\\Adverter")
 	tDir, err := NewTheDirectory("C:\\Users\\ferdi\\Workspace\\Golang\\src\\github.com\\newm4n\\Adverter\\sample")
 	assert.NoError(t, err)
 	assert.NotNil(t, tDir)
@@ -25,7 +21,7 @@ func TestListingDirectory(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log("File size ", tDir.DirPath, " : ", len(files))
 	for fi, f := range files {
-		t.Log("#", fi, " : ", f.FilePath, " ", len(f.Content), " bytes. ", f.GetChunkCount(), " chunks where ", f.ChunkSize, " bytes each chunk. ")
+		t.Log("#", fi, " : ", f.FilePath, " ", len(f.GetContent()), " bytes. ", f.GetChunkCount(), " chunks where ", f.chunkSize, " bytes each chunk. ")
 		h, err := f.GetHash()
 		if err != nil {
 			t.Log("     hash error ", err.Error())
@@ -51,4 +47,16 @@ func TestListingDirectory(t *testing.T) {
 			t.FailNow()
 		}
 	}
+}
+
+func TestPathInfo(t *testing.T) {
+	path := "TheQuickBrownFoxJumpsOverLazyDogs"
+	pi := PathInfo{Path: path}
+
+	str := pi.ToPathInfoString()
+
+	pi2, err := NewPathInfoFromBase64(str)
+	assert.NoError(t, err)
+
+	assert.Equal(t, path, pi2.Path)
 }

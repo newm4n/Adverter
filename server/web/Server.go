@@ -24,8 +24,10 @@ func InitializeRouter() {
 	log.Info("Initializing server")
 	Router = mux.NewRouter()
 
-	Router.Handle("/getdir/{}", ListFilesInDirectory)
-	Router.Handle("/getfile/{}", GetFileChunck)
+	Router.HandleFunc("/path/{b64path}/files", ListFiles).Methods(http.MethodGet)
+	Router.HandleFunc("/path/{b64path}/directories", ListDirectories).Methods(http.MethodGet)
+	Router.HandleFunc("/path/{b64path}/chunk/info", GetChunkInfo).Methods(http.MethodGet)
+	Router.HandleFunc("/path/{b64path}/chunk/{chunkno}", GetChunkData).Methods(http.MethodGet)
 
 	Walk()
 }
@@ -55,7 +57,7 @@ func configureLogging() {
 // Start this server
 func Start() {
 	configureLogging()
-	log.Infof("Starting Hansip")
+	log.Infof("Starting Server")
 	startTime := time.Now()
 
 	InitializeRouter()
@@ -66,7 +68,6 @@ func Start() {
 	if err != nil {
 		panic(err)
 	}
-	wait = graceShut
 	WriteTimeout, err := jiffy.DurationOf(config.Get("server.timeout.write"))
 	if err != nil {
 		panic(err)
@@ -79,6 +80,8 @@ func Start() {
 	if err != nil {
 		panic(err)
 	}
+
+	wait = graceShut
 
 	address := fmt.Sprintf("%s:%s", config.Get("server.host"), config.Get("server.port"))
 	log.Info("Server binding to ", address)
